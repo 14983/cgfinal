@@ -13,14 +13,14 @@ ifeq ($(OS),Windows_NT)
 	CLEAN_CMD := del
 	CLEAN_OPTS := /Q
 	TARGET := main.exe
-	CLEAN_OBJ := modules\*.o *.o $(TARGET) depends\glad.o
+	CLEAN_OBJ := modules\*.o *.o *.png *.exe $(TARGET) depends\glad.o
 else
 	LDFLAGS  := -lGL -lGLU -lglfw -lGLEW -lm -lstb
 	GLFW_LIB :=
 	CLEAN_CMD := rm
 	CLEAN_OPTS := -f
 	TARGET := main
-	CLEAN_OBJ := modules/*.o *.o $(TARGET) depends/glad.o
+	CLEAN_OBJ := modules/*.o *.o *.png *.exe $(TARGET) depends/glad.o
 endif
 
 all: $(TARGET)
