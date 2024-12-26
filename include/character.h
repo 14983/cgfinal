@@ -66,6 +66,7 @@ public:
 			Position -= Up * velocity;
 			break;
 		}
+		lightPos = Position - glm::vec3(0.0f, 0.3f, 0.0f);
 	}
 
 	void ProcessMouseMovement(float xoffset, float yoffset)

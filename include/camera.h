@@ -30,8 +30,8 @@ public:
 
 	//constructor with vectors: position, front, up, yaw, pitch
 	Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 front = glm::vec3(0.0f, 0.0f, -1.0f), bool Object = false, glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH)
-		: Position(position), Front(front), 
-		 WorldUp(up), Yaw(yaw), Pitch(pitch), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM), Object(Object)
+		: Position(position), Front(front),
+		WorldUp(up), Yaw(yaw), Pitch(pitch), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM), Object(Object)
 	{
 		updateCameraVectors();
 	}
@@ -50,11 +50,57 @@ public:
 			Zoom = 90.0f;
 	}
 
-void target(const Charactor& target)
-{
-    this->Front = glm::vec3(cos(glm::radians(this -> Pitch))) * target.Front + glm::vec3(sin(glm::radians(this -> Pitch))) * glm::vec3(0.0, 1.0, 0.0);
-	this->Position = target.Position - glm::vec3(7.0) * (this->Front);
-}
+	void move(Movement direction, float deltaTime)
+	{
+		float velocity = MovementSpeed * deltaTime;
+		switch (direction) {
+		case FORWARD:
+			Position += Front * velocity;
+			break;
+		case BACKWARD:
+			Position -= Front * velocity;
+			break;
+		case LEFT:
+			Position -= Right * velocity;
+			break;
+		case RIGHT:
+			Position += Right * velocity;
+			break;
+		case UP:
+			Position += Up * velocity;
+			break;
+		case DOWN:
+			Position -= Up * velocity;
+			break;
+		}
+	}
+
+	void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true)
+	{
+		if (Object) {
+			yoffset = 0.0f;
+		}
+		xoffset *= MouseSensitivity;
+		yoffset *= MouseSensitivity;
+
+		Yaw += xoffset;
+		Pitch += yoffset;
+
+		if (constrainPitch) {
+			if (Pitch > 89.0f)
+				Pitch = 89.0f;
+			if (Pitch < -89.0f)
+				Pitch = -89.0f;
+		}
+
+		updateCameraVectors();
+	}
+
+	void target(const Charactor& target)
+	{
+		this->Front = glm::vec3(cos(glm::radians(this->Pitch))) * target.Front + glm::vec3(sin(glm::radians(this->Pitch))) * glm::vec3(0.0, 1.0, 0.0);
+		this->Position = target.Position - glm::vec3(7.0) * (this->Front);
+	}
 
 	void updatePitch(float dY) {
 		static const float MAX_PITCH = 30.0;
@@ -62,6 +108,7 @@ void target(const Charactor& target)
 		if (Pitch < -MAX_PITCH) Pitch = -MAX_PITCH;
 		if (Pitch > MAX_PITCH) Pitch = MAX_PITCH;
 	}
+
 private:
 	void updateCameraVectors()
 	{
