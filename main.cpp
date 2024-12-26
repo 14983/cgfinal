@@ -199,6 +199,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	lastX = xpos;
 	lastY = ypos;
 
+	camera.updatePitch(yoffset);
 	player.ProcessMouseMovement(xoffset, yoffset);
 }
 

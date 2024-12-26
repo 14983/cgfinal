@@ -41,63 +41,6 @@ public:
 		return glm::lookAt(Position, Position + Front, Up);
 	}
 
-	void SetMovementSpeed(float speed)
-	{
-		MovementSpeed = speed;
-	}
-
-	void SetMouseSensitivity(float sensitivity)
-	{
-		MouseSensitivity = sensitivity;
-	}
-
-
-	void move(Movement direction, float deltaTime)
-	{
-		float velocity = MovementSpeed * deltaTime;
-		switch (direction) {
-		case FORWARD:
-			Position += Front * velocity;
-			break;
-		case BACKWARD:
-			Position -= Front * velocity;
-			break;
-		case LEFT:
-			Position -= Right * velocity;
-			break;
-		case RIGHT:
-			Position += Right * velocity;
-			break;
-		case UP:
-			Position += Up * velocity;
-			break;
-		case DOWN:
-			Position -= Up * velocity;
-			break;
-		}
-	}
-
-	void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true)
-	{
-		if (Object) {
-			yoffset = 0.0f;
-		}
-		xoffset *= MouseSensitivity;
-		yoffset *= MouseSensitivity;
-
-		Yaw += xoffset;
-		Pitch += yoffset;
-
-		if (constrainPitch) {
-			if (Pitch > 89.0f)
-				Pitch = 89.0f;
-			if (Pitch < -89.0f)
-				Pitch = -89.0f;
-		}
-
-		updateCameraVectors();
-	}
-
 	void zoom(float yoffset)
 	{
 		Zoom -= (float)yoffset;
@@ -109,11 +52,16 @@ public:
 
 void target(const Charactor& target)
 {
-	glm::vec3 offset = target.Front * -7.0f + glm::vec3(0.0f, 2.0f, 0.0f);
-    this->Position = target.Position + offset;
-    this->Front = target.Front - glm::vec3(0.0f, 0.1f, 0.0f);
+    this->Front = glm::vec3(cos(glm::radians(this -> Pitch))) * target.Front + glm::vec3(sin(glm::radians(this -> Pitch))) * glm::vec3(0.0, 1.0, 0.0);
+	this->Position = target.Position - glm::vec3(7.0) * (this->Front);
 }
 
+	void updatePitch(float dY) {
+		static const float MAX_PITCH = 30.0;
+		Pitch += dY * SENSITIVITY;
+		if (Pitch < -MAX_PITCH) Pitch = -MAX_PITCH;
+		if (Pitch > MAX_PITCH) Pitch = MAX_PITCH;
+	}
 private:
 	void updateCameraVectors()
 	{
