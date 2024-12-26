@@ -2,20 +2,20 @@
 *.o
 *.out
 main
+main.exe
 
 # glad
-include/glad/glad.h
-
-# include
 include/freetype2
 include/GL
+include/glad
 include/GLFW
 include/glm
+include/KHR
 include/stb
 
 # depends
-depends/*
+depends
 
 # misc
-include/bunny.h
 *.png
+.vscode
