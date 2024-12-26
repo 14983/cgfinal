@@ -1,0 +1,21 @@
+# binary files
+*.o
+*.out
+main
+
+# glad
+include/glad/glad.h
+
+# include
+include/freetype2
+include/GL
+include/GLFW
+include/glm
+include/stb
+
+# depends
+depends/*
+
+# misc
+include/bunny.h
+*.png
