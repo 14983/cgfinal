@@ -8,3 +8,4 @@
 + `libstb-dev`
 + `libglm-dev`
 + `libglfw3-dev`
++ `libimgui-dev`

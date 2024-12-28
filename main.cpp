@@ -7,6 +7,7 @@
 #include "texture.h"
 #include "common.h"
 #include "screenshot.h"
+#include "imgui_util.h"
 
 //Window settings
 unsigned int scr_width = 800;
@@ -19,6 +20,7 @@ int windowedHeight = 600;
 int windowedX, windowedY;
 GLFWmonitor* monitor;
 const GLFWvidmode* video_mode;
+bool cursor_enabled = false;
 
 //camera settings
 Camera player_camera(campos, playerpos - campos);	//point to origin
@@ -37,6 +39,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void InitVAO();
 void InitSphere();
 void updateTime();
@@ -132,10 +135,11 @@ int main()
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glDisable(GL_CULL_FACE);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetScrollCallback(window, scroll_callback);
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
 
 	monitor = glfwGetPrimaryMonitor();
 	video_mode = glfwGetVideoMode(monitor);
@@ -168,6 +172,8 @@ int main()
 		proj = glm::perspective(glm::radians(free_camera.Zoom), SCR_RATIO, 0.1f, 200.0f);
 	}
 
+	setupImGUI(window);
+
 	while (!glfwWindowShouldClose(window)) {
 		glfwGetWindowPos(window, &windowedX, &windowedY);
 		processInput(window);
@@ -187,10 +193,22 @@ int main()
 		player_camera.target(player);
 		Draw(shader, cube_shader, sphere_shader);
 
+		// ImGUI
+		setupImGUIFrame();
+		drawImGUIPanel("main panel", 
+			std::vector<float *>(1, &currentTime),
+			std::vector<const char*>(1, "CurrentTime")
+		);
+		drawImGUIPanel("test", 
+			std::vector<float *>(0),
+			std::vector<const char*>(0)
+		);
+		endImGUIFrame();
+
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
-
+	clearImGUIContext();
 	glfwTerminate();
 	return 0;
 }
@@ -215,6 +233,7 @@ void processInput(GLFWwindow* window)
 {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
+	if (!cursor_enabled) return;
 	if (!freecam) {
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 			player.move(FORWARD, deltaTime);
@@ -250,6 +269,7 @@ void processInput(GLFWwindow* window)
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
+	if (!cursor_enabled) return;
 	static float lastX = 400.0f;
 	static float lastY = 300.0f;
 
@@ -298,6 +318,15 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	player_camera.zoom(yoffset);
 }
 
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+        if (cursor_enabled)
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		else
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		cursor_enabled = !cursor_enabled;
+    }
+}
 
 void InitSphere() {
 	for (int i = 0; i <= PREC; i++) {

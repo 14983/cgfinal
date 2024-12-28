@@ -1,5 +1,5 @@
 CXX      := g++
-CXXFLAGS := -Wall -Iinclude
+CXXFLAGS := -Wall -Iinclude -I/usr/include/imgui
 
 MODULES_SRC := $(wildcard modules/*.cpp)
 MODULES_OBJ := $(MODULES_SRC:.cpp=.o)
@@ -15,7 +15,7 @@ ifeq ($(OS),Windows_NT)
 	TARGET := main.exe
 	CLEAN_OBJ := modules\*.o *.o *.png *.exe $(TARGET) depends\glad.o
 else
-	LDFLAGS  := -lGL -lGLU -lglfw -lGLEW -lm -lstb
+	LDFLAGS  := -lGL -lGLU -lglfw -lGLEW -lm -limgui -lstb
 	GLFW_LIB :=
 	CLEAN_CMD := rm
 	CLEAN_OPTS := -f
@@ -26,7 +26,7 @@ endif
 all: $(TARGET)
 
 $(TARGET): $(MODULES_OBJ) $(CURRENT_OBJ) depends/glad.o $(GLFW_LIB)
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+	$(CXX) -o $@ $^ $(LDFLAGS)
 
 depends/glad.o: depends/glad.c
 	$(CXX) $(CXXFLAGS) -c $< -o $@
